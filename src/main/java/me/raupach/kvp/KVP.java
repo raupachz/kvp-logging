@@ -32,18 +32,18 @@ public final class KVP {
 
     public static String of(String key, Object value) {
         return new StringBuilder()
-                .append(key)
+                .append(escape(key))
                 .append('=')
-                .append(String.valueOf(value))
+                .append(escape(value))
                 .toString();
     }
 
     public static String of(String key, Object value, Object... args) {
         StringBuilder sb = new StringBuilder(64);
 
-        sb.append(key)
+        sb.append(escape(key))
                 .append('=')
-                .append(String.valueOf(value));
+                .append(escape(value));
 
         if (args != null) {
             int n = args.length;
@@ -53,14 +53,14 @@ public final class KVP {
             for (int i = 0; i < n; i += 2) {
                 sb.append(',')
                         .append(' ')
-                        .append(String.valueOf(args[i]))
+                        .append(escape(args[i]))
                         .append('=')
-                        .append(String.valueOf(args[i + 1]));
+                        .append(escape(args[i + 1]));
             }
             if ((args.length & 1) == 1) {
                 sb.append(',')
                         .append(' ')
-                        .append(args[n])
+                        .append(escape(args[n]))
                         .append('=')
                         .append("null");
             }
@@ -68,33 +68,47 @@ public final class KVP {
 
         return sb.toString();
     }
-
-    static void escape(StringBuilder sb, final int offset, final int length) {
-        switch (length) {
+    
+    static String escape(Object value) {
+        return escape(String.valueOf(value));
+    }
+    
+    static String escape(String s) {
+        if (s == null) {
+            s = "null";
+        }
+        final int n = s.length();
+        switch (n) {
             case 0:
                 break;
             case 1: {
-                char c = sb.charAt(0);
+                char c = s.charAt(0);
                 if (!(isLetter(c)
                         || isDigit(c)
                         || isUnderscore(c)
                         || isDot(c)
                         || isDollar(c)
                         || isAtSign(c))) {
-                    sb.insert(offset, '\"');
-                    sb.insert(length + 1, '\"');
+                    s = new StringBuilder()
+                            .append('\"')
+                            .append(s)
+                            .append('\"')
+                            .toString();
                 }
                 break;
             }
             default: {
-                char c = sb.charAt(0);
-                char d = sb.charAt(length - 1);
-                if (isDQuot(c) && isDQuot(d) || isQuot(c) && isQuot(d)) {
-                    return;
+                char c = s.charAt(0);
+                char d = s.charAt(n - 1);
+                if (isDQuot(c) && isDQuot(d)) {
+                    break;
                 }
-                for (int i = offset; i < length; i++) {
-                    c = sb.charAt(i);
-                    if (isBackslash(c) && length > 1) {
+                if (isQuot(c) && isQuot(d)) {
+                    break;
+                }
+                for (int i = 0; i < n; i++) {
+                    c = s.charAt(i);
+                    if (isBackslash(c)) {
                         i++;
                     } else if (!(isLetter(c)
                             || isDigit(c)
@@ -102,14 +116,17 @@ public final class KVP {
                             || isDot(c)
                             || isDollar(c)
                             || isAtSign(c))) {
-                        sb.insert(offset, '\"');
-                        sb.insert(length + 1, '\"');
-                        return;
+                        s = new StringBuilder()
+                            .append('\"')
+                            .append(s)
+                            .append('\"')
+                            .toString();
+                        break;
                     }
                 }
-                break;
             }
         }
+        return s;
     }
 
     static boolean isQuot(char c) {

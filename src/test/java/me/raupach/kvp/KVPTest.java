@@ -94,17 +94,8 @@ public class KVPTest {
     }
     
     @Test(dataProvider = "datasetValues", enabled = true)
-    public void test_escape(String plain, String expected) {
-        int offset = 0;
-        int length = plain.length();
-        
-        StringBuilder sb = new StringBuilder(plain);
-        KVP.escape(sb, offset, length);
-        String actual = sb.toString();
-        
-        System.out.println(String.format("%1$25s -> %2$s", plain, expected));
-        
-        assertEquals(actual, expected);
+    public void test_escape2(String plain, String expected) {
+        assertEquals(KVP.escape(plain), expected);
     }
 
 }
