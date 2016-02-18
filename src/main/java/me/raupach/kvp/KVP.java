@@ -26,8 +26,9 @@ package me.raupach.kvp;
 import static java.lang.Character.*;
 
 public final class KVP {
-    
-    private KVP() {}
+
+    private KVP() {
+    }
 
     public static String of(String key, Object value) {
         return new StringBuilder()
@@ -37,7 +38,7 @@ public final class KVP {
                 .toString();
     }
 
-    public static String of(String key, Object value, String... args) {
+    public static String of(String key, Object value, Object... args) {
         StringBuilder sb = new StringBuilder(64);
 
         sb.append(key)
@@ -52,9 +53,9 @@ public final class KVP {
             for (int i = 0; i < n; i += 2) {
                 sb.append(',')
                         .append(' ')
-                        .append(args[i])
+                        .append(String.valueOf(args[i]))
                         .append('=')
-                        .append(args[i + 1]);
+                        .append(String.valueOf(args[i + 1]));
             }
             if ((args.length & 1) == 1) {
                 sb.append(',')

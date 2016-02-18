@@ -33,9 +33,9 @@ public class KVPTest {
     public void test() {
         String actual = KVP.of("cpu.time", "200ms", 
                                "cpu.load", "0.34", 
-                               "disk", "345kb");
+                               "disk", 0.3);
         
-        String expected = "cpu.time=200ms, cpu.load=0.34, disk=345kb";
+        String expected = "cpu.time=200ms, cpu.load=0.34, disk=0.3";
         assertEquals(actual, expected);
     }
     
