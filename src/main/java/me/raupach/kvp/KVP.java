@@ -25,7 +25,9 @@ package me.raupach.kvp;
 
 import static java.lang.Character.*;
 
-public class KVP {
+public final class KVP {
+    
+    private KVP() {}
 
     public static String of(String key, Object value) {
         return new StringBuilder()
