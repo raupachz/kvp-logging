@@ -25,58 +25,54 @@ package me.raupach.kvp;
 
 import static java.lang.Character.*;
 
-/**
- * KEY
- * <ul>
- * <li>the allowed list of characters is any Alphanumeric plus &quot;_&quot;
- * &quot;.&quot; &quot;$&quot; &quot;&#64;&quot;</li>
- * <li>must have at least one non-numeric character from the allowed list of
- * characters</li>
- * <li>a &quot; or ' either side of a key will result in anything between the
- * quotations marks being interpreted as the KEY, e.g. &quot;key[1]&quot; will
- * give a KEY of key[1]</li>
- * <ul>
- *
- * @author Björn Raupach <raupach@me.com>
- */
 public class KVP {
 
-    public static String of(String key, String value, String... args) {
-        // Log messages are in general longer than 16 characters
+    public static String of(String key, Object value) {
+        return new StringBuilder()
+                .append(key)
+                .append('=')
+                .append(String.valueOf(value))
+                .toString();
+    }
+
+    public static String of(String key, Object value, String... args) {
         StringBuilder sb = new StringBuilder(64);
 
-        sb.append(key).append('=').append(value);
+        sb.append(key)
+                .append('=')
+                .append(String.valueOf(value));
+
+        if (args != null) {
+            int n = args.length;
+            if ((args.length & 1) == 1) {
+                n -= 1;
+            }
+            for (int i = 0; i < n; i += 2) {
+                sb.append(',')
+                        .append(' ')
+                        .append(args[i])
+                        .append('=')
+                        .append(args[i + 1]);
+            }
+            if ((args.length & 1) == 1) {
+                sb.append(',')
+                        .append(' ')
+                        .append(args[n])
+                        .append('=')
+                        .append("null");
+            }
+        }
 
         return sb.toString();
     }
 
     static void escape(StringBuilder sb, final int offset, final int length) {
-        if (length == 0) {
-            return;
-        } else if (length == 1) {
-            char c = sb.charAt(0);
-            if (!(isLetter(c)
-                    || isDigit(c)
-                    || isUnderscore(c)
-                    || isDot(c)
-                    || isDollar(c)
-                    || isAtSign(c))) {
-                sb.insert(offset, '\"');
-                sb.insert(length + 1, '\"');
-            }
-        } else {
-            char c = sb.charAt(0);
-            char d = sb.charAt(length - 1);
-
-            if (isDQuot(c) && isDQuot(d) || isQuot(c) && isQuot(d)) {
-                return;
-            }
-
-            for (int i = offset; i < length; i++) {
-                c = sb.charAt(i);
-                if (isBackslash(c) && length > 1) {
-                    i++;
-                } else if (!(isLetter(c)
+        switch (length) {
+            case 0:
+                break;
+            case 1: {
+                char c = sb.charAt(0);
+                if (!(isLetter(c)
                         || isDigit(c)
                         || isUnderscore(c)
                         || isDot(c)
@@ -84,8 +80,31 @@ public class KVP {
                         || isAtSign(c))) {
                     sb.insert(offset, '\"');
                     sb.insert(length + 1, '\"');
+                }
+                break;
+            }
+            default: {
+                char c = sb.charAt(0);
+                char d = sb.charAt(length - 1);
+                if (isDQuot(c) && isDQuot(d) || isQuot(c) && isQuot(d)) {
                     return;
                 }
+                for (int i = offset; i < length; i++) {
+                    c = sb.charAt(i);
+                    if (isBackslash(c) && length > 1) {
+                        i++;
+                    } else if (!(isLetter(c)
+                            || isDigit(c)
+                            || isUnderscore(c)
+                            || isDot(c)
+                            || isDollar(c)
+                            || isAtSign(c))) {
+                        sb.insert(offset, '\"');
+                        sb.insert(length + 1, '\"');
+                        return;
+                    }
+                }
+                break;
             }
         }
     }

@@ -29,9 +29,38 @@ import org.testng.annotations.DataProvider;
 
 @Test
 public class KVPTest {
-
-    public void test_of_null() {
+    
+    public void test() {
+        String actual = KVP.of("cpu.time", "200ms", 
+                               "cpu.load", "0.34", 
+                               "disk", "345kb");
+        
+        String expected = "cpu.time=200ms, cpu.load=0.34, disk=345kb";
+        assertEquals(actual, expected);
+    }
+    
+    public void test_odd_varargs() {
+        String[] args = { "cpu.load" };
+        
+        String actual = KVP.of("cpu.time", "200ms", args);
+        String expected = "cpu.time=200ms, cpu.load=null";
+        assertEquals(actual, expected);
+    }
+    
+    public void test_of_s_n() {
+        String actual = KVP.of("cpu.time", "200ms");
+        String expected = "cpu.time=200ms";
+        assertEquals(actual, expected);
+    }
+    
+    public void test_of_2null() {
         String actual = KVP.of(null, null);
+        String expected = "null=null";
+        assertEquals(actual, expected);
+    }
+    
+    public void test_of_3null() {
+        String actual = KVP.of(null, null, null);
         String expected = "null=null";
         assertEquals(actual, expected);
     }
@@ -56,6 +85,7 @@ public class KVPTest {
             {"Valentine's Day", "\"Valentine's Day\""},
             {"\"", "\"\"\""},
             {"\"\"\"", "\"\"\""},
+            {"\"\"\"\"", "\"\"\"\""},
             {"$\"", "\"$\"\""},
             {"\"$", "\"\"$\""},
             {"key: \"value\" ", "\"key: \"value\" \""}, 
@@ -64,16 +94,15 @@ public class KVPTest {
     }
     
     @Test(dataProvider = "datasetValues", enabled = true)
-    public void test_escape(String plain, String escaped) {
+    public void test_escape(String plain, String expected) {
         int offset = 0;
         int length = plain.length();
-        StringBuilder sb = new StringBuilder();
-        sb.append(plain);
         
+        StringBuilder sb = new StringBuilder(plain);
         KVP.escape(sb, offset, length);
-        
-        String expected = escaped;
         String actual = sb.toString();
+        
+        System.out.println(String.format("%1$25s -> %2$s", plain, expected));
         
         assertEquals(actual, expected);
     }
