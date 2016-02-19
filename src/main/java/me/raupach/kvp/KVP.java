@@ -32,7 +32,7 @@ public final class KVP {
 
     public static String of(String key, Object value) {
         return new StringBuilder()
-                .append(escape(key))
+                .append(escape((Object)key))
                 .append('=')
                 .append(escape(value))
                 .toString();
@@ -41,7 +41,7 @@ public final class KVP {
     public static String of(String key, Object value, Object... args) {
         StringBuilder sb = new StringBuilder(64);
 
-        sb.append(escape(key))
+        sb.append(escape((Object)key))
                 .append('=')
                 .append(escape(value));
 
@@ -74,9 +74,6 @@ public final class KVP {
     }
     
     static String escape(String s) {
-        if (s == null) {
-            s = "null";
-        }
         final int n = s.length();
         switch (n) {
             case 0:
@@ -156,5 +153,14 @@ public final class KVP {
     static boolean isAtSign(char c) {
         return c == '@';
     }
-
+    
+    static boolean isAllDigits(String s) {
+        for (char c : s.toCharArray()) {
+            if (!isDigit(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
 }
