@@ -27,9 +27,9 @@ import org.testng.annotations.Test;
 import static org.testng.Assert.*;
 import org.testng.annotations.DataProvider;
 
-@Test
 public class KVPTest {
     
+    @Test
     public void test() {
         String actual = KVP.of("cpu.time", "200ms", 
                                "cpu.load", "0.34", 
@@ -39,6 +39,7 @@ public class KVPTest {
         assertEquals(actual, expected);
     }
     
+    @Test
     public void test_odd_varargs() {
         String[] args = { "cpu.load" };
         
@@ -47,18 +48,21 @@ public class KVPTest {
         assertEquals(actual, expected);
     }
     
+    @Test
     public void test_of_s_n() {
         String actual = KVP.of("cpu.time", "200ms");
         String expected = "cpu.time=200ms";
         assertEquals(actual, expected);
     }
     
+    @Test
     public void test_of_2null() {
         String actual = KVP.of(null, null);
         String expected = "null=null";
         assertEquals(actual, expected);
     }
     
+    @Test
     public void test_of_3null() {
         String actual = KVP.of(null, null, null);
         String expected = "null=null";
@@ -97,5 +101,45 @@ public class KVPTest {
     public void test_escape2(String plain, String expected) {
         assertEquals(KVP.escape(plain), expected);
     }
-
+    
+    @DataProvider(name = "invalid keys")
+    public Object[][] createInvalidKeyDataset() {
+        return new Object[][] {
+            { null },
+            { "" },
+            { "0" },
+            { "00" },
+            { "+" },
+        };
+    }
+    
+    @Test(groups = { "key" }, dataProvider = "invalid keys", expectedExceptions = { NullPointerException.class, IllegalArgumentException.class })
+    public void test_invalid_keys(String key) {
+        KVP.key(key);
+    }
+    
+    @DataProvider(name = "valid keys")
+    public Object[][] createValidKeyDataset() {
+        return new Object[][] {
+            { "a" },
+            { "1a" },
+            { "a1" },
+            { "0.0" },
+            { "key" },
+            { "$key" },
+            { "_key" },
+            { ".key" },
+            { "@key" },
+            { "key$something" },
+            { "key_something" },
+            { "key.something" },
+            { "key@something" }
+        };
+    }
+    
+    @Test(groups = { "key" }, dataProvider = "valid keys")
+    public void test_valid_keys(String key) {
+        assertEquals(key, KVP.key(key));
+    }
+    
 }

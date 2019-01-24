@@ -1,4 +1,5 @@
 # Background
+
 This is an experimental project that I am working on.
 
 Logging in Java is a mess. Not only do we have several competing Logging 
@@ -32,7 +33,8 @@ This specification is copied from [Logentries](https://docs.logentries.com/docs/
 
 Specification
 
-A key value pair consists of an identifier called a KEY, followed by a SEPARATOR, a VALUE and has a prefix and suffix termed the KVDELIMITER
+A key value pair consists of an identifier called a KEY, followed by a SEPARATOR, 
+a VALUE and has a prefix and suffix termed the KVDELIMITER
 
 KVDELIMITER KEY {whitespace} SEPARATOR {whitespace} VALUE{UNIT} KVDELIMITER
 
@@ -40,7 +42,8 @@ Term Definitions
 
 KVDELIMITER
 
-*can be space (” “), comma (“,”), tab “\t” or “\r” or “\n” or “\r\n”
+*can be space (" "), comma (","), tab "\t" or "\r" or "\n" or "\r\n"
+
 KEY
 
 the allowed list of characters is any Alphanumeric plus “_” “.” “$” “@”
@@ -52,6 +55,7 @@ can be 0 or 1 spaces (Ascii 0x20 or ” “) SEPARATOR*
 is “=” or “:”
 can be preceded by and/or followed by a space
 in order to appear in a key or value, the separator must be between a pair of quotes or escaped
+
 VALUE
 
 consists of any alphanumeric plus “_” “.” “$” “@”
@@ -59,9 +63,11 @@ consists of any alphanumeric plus “_” “.” “$” “@”
 a ” or ‘ either side of a value will result in anything between the quotations marks being interpreted as the VALUE, e.g. key1=”value description” will give a KEY of key1 and a VALUE of “value description”
 Placing quotes around the VALUE is required for parsing URLs or other items that contain slashes (/)
 *a SEPARATOR in a value will be treated such that this value (and the possible key preceding it) will not be treated as a key value pair, e.g. so timestamps not broken up
+
 UNIT
 
 This is the alphabetical text or “%” which follows the last number in a Numeric only VALUE up to the next space or first non alphabetical character or up to 2 characters (whichever occurs first) – those 2 characters will not be considered as part of value for querying, i.e. 100ms is treated as 100.
+
 CHARACTER ESCAPING
 
 this is used to allow a KEY or VALUE to contain a character that would not otherwise be allowed, e.g. a space or quote or comma or bracket is not allowed in a KEY or VALUE unless escaped.

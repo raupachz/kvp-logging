@@ -32,7 +32,7 @@ public final class KVP {
 
     public static String of(String key, Object value) {
         return new StringBuilder()
-                .append(escape((Object)key))
+                .append(escape((Object) key))
                 .append('=')
                 .append(escape(value))
                 .toString();
@@ -41,7 +41,7 @@ public final class KVP {
     public static String of(String key, Object value, Object... args) {
         StringBuilder sb = new StringBuilder(64);
 
-        sb.append(escape((Object)key))
+        sb.append(escape((Object) key))
                 .append('=')
                 .append(escape(value));
 
@@ -68,11 +68,61 @@ public final class KVP {
 
         return sb.toString();
     }
-    
+
+    /*
+     * The allowed list of characters is any alphanumeric plus "_",  ".", "$", and "@"
+     * Must have at least one non-numeric character from the allowed list of characters
+     * A " or ' either side of a key will result in anything between the quotations marks being interpreted as the KEY, e.g. "key[1]" will give a KEY of key[1]
+     */
+    static String key(String key) {
+        if (key == null) {
+            throw new NullPointerException("key");
+        }
+        if (key.isEmpty()) {
+            throw new IllegalArgumentException("key");
+        }
+
+        key = escape(key);
+        
+        int digits = 0;
+        for (int i = 0; i < key.length(); i++) {
+            char c = key.charAt(i);
+            switch (c) {
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':  
+                    digits++;
+                    break;
+                case '.':
+                case '_':
+                case '$':
+                case '@':
+                    break;
+                default:
+                    if (!isLetter(c)) {
+                        throw new IllegalArgumentException("key");
+                    }
+            }
+        }
+        
+        if (digits == key.length()) {
+            throw new IllegalArgumentException("key");
+        }
+        
+        return key;
+    }
+
     static String escape(Object value) {
         return escape(String.valueOf(value));
     }
-    
+
     static String escape(String s) {
         final int n = s.length();
         switch (n) {
@@ -114,10 +164,10 @@ public final class KVP {
                             || isDollar(c)
                             || isAtSign(c))) {
                         s = new StringBuilder()
-                            .append('\"')
-                            .append(s)
-                            .append('\"')
-                            .toString();
+                                .append('\"')
+                                .append(s)
+                                .append('\"')
+                                .toString();
                         break;
                     }
                 }
@@ -153,7 +203,7 @@ public final class KVP {
     static boolean isAtSign(char c) {
         return c == '@';
     }
-    
+
     static boolean isAllDigits(String s) {
         for (char c : s.toCharArray()) {
             if (!isDigit(c)) {
@@ -162,5 +212,9 @@ public final class KVP {
         }
         return true;
     }
-    
+
+    static boolean isAlphaNumeric(char c) {
+        return Character.isLetterOrDigit(c);
+    }
+
 }
